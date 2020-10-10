@@ -2,7 +2,8 @@
 
 This repository holds some GPU optimized algorithms by the "Robotics and Perception Group" at the Dep. of Informatics, "University of Zurich", and Dep. of Neuroinformatics, ETH and University of Zurich.
 
-![Cover photo](assets/publication.png)
+<a href="https://youtu.be/5Ndi9IYpI68" target="_blank"><img src="./assets/publication.png" 
+width="900" height="480" border="10" /></a>
 
 ## Publication
 
@@ -118,12 +119,12 @@ make solib -j4
 2. Compile the test suite (optional)
 ```bash
 # We prepared a test suite for the library
-# that verifies the provided functionalities
+# that verifies the code and provides an example for the available functionalities
 make test -j4
 # Download the dataset: some tests require a dataset
 # We used the Machine Hall 01 from ETH Zürich.
 cd test/images
-# Follow the instructions
+# Follow the instructions of the downloader script:
 ./create_feature_detector_evaluation_data.sh
 # Once the dataset has been acquired successfully,
 # simply run the test suite:
@@ -151,6 +152,17 @@ CXX_LD_LIBRARIES += -lvilib
 CXX_LD_FLAGS += -Wl, -rpath,<path to the directory containing the .so>
 # or modify the LD_LIBRARY_PATH environment variable
 ```
+
+## Examples
+
+The test suite serves two purposes: verifying the functionality and providing examples for setting up the library calls properly.
+
+The EuRoC Machine Hall dataset mentioned in the paper for feature detection and tracking can be downloaded through our [custom script](https://github.com/uzh-rpg/vilib/blob/master/visual_lib/test/images/create_feature_detector_evaluation_data.sh). This is the dataset, that is used by default in the test code. Please note, that in our online example, the test image count has been reduced from the original 3682 to 100 for a quicker evaluation, but this may be readjusted any time [here](https://github.com/uzh-rpg/vilib/blob/master/visual_lib/test/src/tests.cpp).
+
+In case you would like to use the library in your application, we kindly ask you to consult the examples below:
+
+- Feature detection: [here](https://github.com/uzh-rpg/vilib/blob/master/visual_lib/test/src/feature_detection/test_fast.cpp)
+- Feature tracking: [here](https://github.com/uzh-rpg/vilib/blob/master/visual_lib/test/src/high_level/test_featuretracker.cpp)
 
 ## Dependencies
 
