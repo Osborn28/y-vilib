@@ -73,7 +73,7 @@ FeatureTrackerGPU::FeatureTrackerGPU(const FeatureTrackerOptions & options,
       max_patch_size = options_.klt_patch_sizes[i];
     }
   }
-  pyramid_patch_sizes_.max_area = (max_patch_size+2)*(max_patch_size+2);
+  pyramid_patch_sizes_.max_area = (max_patch_size+2)*(max_patch_size+2); // yy: +2, 因为差值所有边界各+1
 }
 
 FeatureTrackerGPU::~FeatureTrackerGPU(void) {
@@ -110,7 +110,7 @@ void FeatureTrackerGPU::track(const std::shared_ptr<FrameBundle> & cur_frames,
         struct FeatureTrack & track = tracks_[c][track_id];
         // opposed to the previous version, now we only need to update
         // the indirection layer that points to the already occupied buffer cells
-        buffer_[c].h_indir_data_[track_id] = track.buffer_id_;
+        buffer_[c].h_indir_data_[track_id] = track.buffer_id_; // yy: why h, and not d?
       }
 
       // run the tracking on the GPU
@@ -297,7 +297,7 @@ void FeatureTrackerGPU::updateTracks(const std::size_t & last_n,
   std::size_t offset = tracks_[camera_id].size() - last_n;
   // initialize the indirection layer with used buffer ids
   std::size_t indir_id = 0;
-  for(auto it=tracks_[camera_id].begin() + offset; it < tracks_[camera_id].end(); ++it) {
+  for(auto it=tracks_[camera_id].begin() + offset; it < tracks_[camera_id].end(); ++it) { // yy: begin() + offset? last_n?
     buffer_[camera_id].h_indir_data_[indir_id++] = it->buffer_id_;
   }
 
@@ -426,6 +426,7 @@ void FeatureTrackerGPU::setDetectorGPU(std::shared_ptr<DetectorBaseGPU> & detect
   CUDA_API_CALL(cudaHostGetDevicePointer((void**)&buffer_[camera_id].d_metadata_,buffer_[camera_id].h_metadata_,0));
 
   // 03) Patchdata
+  // yy: 显存池？不需要为每一层都按照最大值分配？不同大小如何保证效率不受影响？
   std::size_t patchdata_element_bytes = sizeof(FEATURE_TRACKER_REFERENCE_PATCH_TYPE)*pyramid_patch_sizes_.max_area*pyramid_levels_;
   std::size_t patchdata_bytes = patchdata_element_bytes * max_ftr_count_;
   // device memory, as the CPU doesnt need to access it

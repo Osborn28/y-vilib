@@ -629,7 +629,7 @@ __global__ void detector_base_gpu_regular_nms_kernel(const int image_width_m_bor
                                                      float * __restrict__ d_response) {
   const int x = blockDim.x*blockIdx.x + threadIdx.x; // thread id X
   const int y = blockDim.y*blockIdx.y + threadIdx.y; // thread id Y
-  if(x < image_width_m_borders && y < image_height_m_borders) {
+  if(x < image_width_m_borders && y < image_height_m_borders) { // yy: ?
     float * d_response_ptr = d_response + (y+vertical_border)*response_pitch_elements + x + horizontal_border;
     const float center_value = d_response_ptr[0];
 
@@ -689,7 +689,7 @@ __host__ void detector_base_gpu_regular_nms(const int image_width,
                                                     vertical_threads);
   detector_base_gpu_regular_nms_kernel<<<p_nms.blocks_per_grid,p_nms.threads_per_block,0,stream>>>(
                                      image_width_m_borders,
-                                     image_width_m_borders,
+                                     image_width_m_borders, // yy: bug?
                                      horizontal_border,
                                      vertical_border,
                                      response_pitch_elements,

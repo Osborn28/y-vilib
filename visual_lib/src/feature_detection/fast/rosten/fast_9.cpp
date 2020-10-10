@@ -46,7 +46,7 @@ int fast9_corner_score_new(const byte* p, const int pixel[], int bstart)
     int b = (bmax + bmin)/2;
     
     /*Compute the score using binary search*/
-	for(;;)
+	for(;;) // yy: 迭代的方式求解？
     {
 		int cb = *p + b;
 		int c_b= *p - b;

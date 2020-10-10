@@ -100,8 +100,9 @@ __inline__ __device__ unsigned char fast_gpu_is_corner(const unsigned int & addr
   if(ones < min_arc_length) { // if we dont have enough 1-s in the address, dont even try
     return 0;
   }
-  unsigned int address_dup = address|(address<<16); //duplicate the low 16-bits at the high 16-bits
+  unsigned int address_dup = address|(address<<16); //duplicate the low 16-bits at the high 16-bits // yy: because __clz need a 32 bit integer
   while(ones > 0) {
+    // __clz: Return the number of consecutive high-order zero bits in a 32 bit integer.
     address_dup <<= __clz(address_dup); // shift out the high order zeros
     int lones = __clz(~address_dup); // count the leading ones
     if(lones >= min_arc_length) {
@@ -151,14 +152,14 @@ __global__ void fast_gpu_calculate_lut_kernel(unsigned int * __restrict__ d_corn
     const int unified_address = (i<<11) | x;
     output |= fast_gpu_is_corner(unified_address,min_arc_length)<<i;
   }
-  d_corner_lut[x] = output;
+  d_corner_lut[x] = output;  // yy: 11 + 5, great idea!
 }
 
 __host__ void fast_gpu_calculate_lut(unsigned int * d_corner_lut,
                                      const int & min_arc_length,
                                      cudaStream_t stream) {
   // every thread writes 4 bytes: in total 64kbits get written
-  kernel_params_t p = cuda_gen_kernel_params_1d(2048,256);
+  kernel_params_t p = cuda_gen_kernel_params_1d(2048,256);  // yy: 2048 * 256 * 4 * 32(in kernel, sizeof(unsigned int)) = 64kbytes
   fast_gpu_calculate_lut_kernel<<<p.blocks_per_grid,p.threads_per_block,0,stream>>>
                                                    ((unsigned int*)d_corner_lut,
                                                     min_arc_length);
@@ -245,7 +246,7 @@ template <fast_score SCORE>
 __global__ void fast_gpu_calc_corner_response_kernel(
                                        const int image_width,
                                        const int image_height,
-                                       const int image_pitch,
+                                       const int image_pitch, // yy: what mean?
                                        const unsigned char * __restrict__ d_image,
                                        const int horizontal_border,
                                        const int vertical_border,

@@ -232,6 +232,7 @@ __global__ void track_features_kernel(const int candidate_num,
     float2 cur_px = d_cur_px_bx;
     float2 cur_alpha_beta = d_cur_alpha_beta_bx;
     float scale = 1.0f;
+    // yy: 存储一下初始的cur_px.xy信息而不是不断地放大缩小只为了求出原始cur_px信息？
     for(int level=max_level;
         (converged || go_to_next_level) && level>=min_level;
         cur_px.x *= scale,cur_px.y *= scale,--level,d_patch_data_bx+=pyramid_patch_sizes.max_area,d_hessian_data_bx+=10) {
@@ -240,7 +241,7 @@ __global__ void track_features_kernel(const int candidate_num,
       const float inv_scale = 1.0f/scale;
       const int & patch_size = pyramid_patch_sizes.wh[level];
       const int & half_patch_size = patch_size >> 1;
-      const int & patch_stride = patch_size + 2;
+      const int & patch_stride = patch_size + 2; // yy: why add 2?
 
       // image size
       const int & d_in_img_width  = pyramid_description.desc.w[level];
@@ -571,7 +572,7 @@ __device__ __inline__ void calc_hessian(const int & img_width,
     }
   }
 
-  // Reduce it down to lane 0
+  // Reduce it down to lane 0 // yy: why?
   #pragma unroll
   for(int offset = WARP_SIZE/2; offset > 0; offset /= 2) {
     #pragma unroll
